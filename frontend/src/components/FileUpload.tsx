@@ -45,102 +45,98 @@ const FileUpload: React.FC<Props> = ({ onUploaded, onUploadSuccess }) => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <div
-        className="p-4 border rounded-lg shadow-sm transition
-                   bg-white text-slate-900 border-slate-200
-                   dark:bg-slate-900 dark:text-slate-100 dark:border-slate-700"
-      >
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-          <div className="flex-1">
-            <div className="text-sm font-medium">Upload PDF</div>
-            <div className="text-xs text-gray-500 dark:text-slate-400">
-              Drag & drop or choose a PDF. Give a friendly title for easy
-              identification.
-            </div>
+    <div className="w-full">
+      {/* Header */}
+      <div className="flex items-start gap-3">
+        <div className="mt-1">
+          <Upload className="h-6 w-6 text-pink-300" />
+        </div>
+        <div className="flex-1">
+          <div className="text-sm font-semibold text-purple-50">
+            Upload PDF
+          </div>
+          <div className="text-xs text-purple-200/80">
+            Drag & drop or choose a PDF. Give a friendly title for easy
+            identification.
           </div>
         </div>
+      </div>
 
-        {/* File Input */}
-        <div className="mt-3">
-          <input
-            ref={inputRef}
-            type="file"
-            accept=".pdf"
-            multiple
-            onChange={onSelect}
-            className="hidden"
-            id="file-input"
-          />
+      {/* File Input */}
+      <div className="mt-3">
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".pdf"
+          multiple
+          onChange={onSelect}
+          className="hidden"
+          id="file-input"
+        />
 
-          <label
-            htmlFor="file-input"
-            className="inline-block px-4 py-2 border rounded cursor-pointer text-sm transition
-                       bg-gray-50 border-slate-300 text-slate-800
-                       hover:bg-gray-100
-                       dark:bg-slate-800 dark:border-slate-600 dark:text-slate-100
-                       dark:hover:bg-slate-700"
+        <label
+          htmlFor="file-input"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer text-xs font-medium
+                     bg-white/10 border border-white/20 text-purple-100
+                     hover:bg-white/15 hover:border-white/30 transition"
+        >
+          Choose files
+        </label>
+      </div>
+
+      {/* Selected Files */}
+      <div className="mt-3 space-y-2">
+        {files.map((f, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between px-3 py-2 rounded-xl transition
+                       bg-white/5 hover:bg-white/10 border border-white/10"
           >
-            Choose files
-          </label>
-        </div>
-
-        {/* Selected Files */}
-        <div className="mt-3 space-y-2">
-          {files.map((f, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between p-2 rounded transition
-                         bg-gray-50 hover:bg-gray-100
-                         dark:bg-slate-800 dark:hover:bg-slate-700"
-            >
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-red-500 dark:text-red-400" />
-                <div>
-                  <div className="text-sm">{f.name}</div>
-                  <div className="text-xs text-gray-500 dark:text-slate-400">
-                    {(f.size / 1024).toFixed(1)} KB
-                  </div>
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-pink-300" />
+              <div>
+                <div className="text-sm text-purple-50">{f.name}</div>
+                <div className="text-[11px] text-purple-200/80">
+                  {(f.size / 1024).toFixed(1)} KB
                 </div>
               </div>
-
-              <button
-                onClick={() =>
-                  setFiles((prev) => prev.filter((_, idx) => idx !== i))
-                }
-                className="p-1 rounded transition
-                           hover:bg-gray-200
-                           dark:hover:bg-slate-600"
-              >
-                <X className="h-4 w-4 text-gray-500 dark:text-slate-300" />
-              </button>
             </div>
-          ))}
-        </div>
 
-        {/* Title + Upload Button */}
-        <div className="mt-3 flex gap-2">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Document title (optional)"
-            className="flex-1 px-3 py-2 border rounded transition
-                       bg-white text-slate-900 border-slate-300
-                       dark:bg-slate-800 dark:text-slate-100 dark:border-slate-600"
-          />
+            <button
+              onClick={() =>
+                setFiles((prev) => prev.filter((_, idx) => idx !== i))
+              }
+              className="p-1 rounded-full transition hover:bg-white/10"
+            >
+              <X className="h-4 w-4 text-purple-200" />
+            </button>
+          </div>
+        ))}
+      </div>
 
-          <button
-            onClick={upload}
-            disabled={isUploading}
-            className="px-4 py-2 rounded text-white transition
-                       bg-blue-600 hover:bg-blue-700
-                       disabled:opacity-60"
-          >
-            {isUploading ? "Uploading..." : "Upload"}
-          </button>
-        </div>
+      {/* Title + Upload Button */}
+      <div className="mt-3 flex flex-col sm:flex-row gap-2">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Document title (optional)"
+          className="flex-1 px-3 py-2 rounded-xl text-sm
+                     bg-black/30 border border-white/20
+                     text-purple-50 placeholder:text-purple-200/60
+                     focus:outline-none focus:ring-2 focus:ring-pink-500/70"
+        />
+
+        <button
+          onClick={upload}
+          disabled={isUploading}
+          className="sm:w-auto w-full px-4 py-2 rounded-full text-sm font-semibold
+                     bg-gradient-to-r from-pink-500 via-fuchsia-500 to-purple-500
+                     hover:brightness-110 text-white
+                     shadow-[0_10px_25px_rgba(236,72,153,0.45)]
+                     disabled:opacity-60 disabled:cursor-not-allowed transition"
+        >
+          {isUploading ? "Uploading..." : "Upload"}
+        </button>
       </div>
     </div>
   );

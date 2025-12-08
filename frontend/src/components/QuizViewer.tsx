@@ -51,25 +51,31 @@ const QuizViewer: React.FC<{ quiz: Q[]; onClose?: () => void }> = ({
 
   return (
     <div
-      className="p-4 rounded shadow
-                 bg-white text-slate-900
-                 dark:bg-slate-900 dark:text-slate-100"
+      className="p-4 rounded-2xl
+                 bg-white/5 text-purple-50
+                 border border-white/10
+                 shadow-[0_14px_40px_rgba(0,0,0,0.6)]"
     >
       {/* Header */}
       <div className="flex justify-between items-center mb-3">
         <div className="space-y-1">
-          <h3 className="text-lg font-semibold">Generated Quiz</h3>
+          <h3 className="text-lg font-semibold text-purple-50">
+            Generated Quiz
+          </h3>
+
           {submitted && score !== null && (
-            <p className="text-sm">
+            <p className="text-sm text-purple-100/90">
               Score:{" "}
-              <span className="font-semibold">
+              <span className="font-semibold text-pink-300">
                 {score} / {total}
               </span>
             </p>
           )}
+
           {!submitted && (
-            <p className="text-xs text-gray-500 dark:text-slate-400">
-              Select your answers and click <strong>Submit Quiz</strong>.
+            <p className="text-xs text-purple-200/80">
+              Select your answers and click{" "}
+              <strong className="text-pink-200">Submit Quiz</strong>.
             </p>
           )}
         </div>
@@ -78,8 +84,11 @@ const QuizViewer: React.FC<{ quiz: Q[]; onClose?: () => void }> = ({
           {!submitted && (
             <button
               onClick={handleSubmit}
-              className="px-3 py-2 rounded text-sm
-                         bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="px-3 py-2 rounded-full text-sm font-medium
+                         bg-gradient-to-r from-emerald-500 to-emerald-400
+                         hover:brightness-110 text-white
+                         shadow-[0_10px_25px_rgba(16,185,129,0.45)]
+                         disabled:opacity-60"
               disabled={!quiz.length}
             >
               Submit Quiz
@@ -88,8 +97,7 @@ const QuizViewer: React.FC<{ quiz: Q[]; onClose?: () => void }> = ({
           {onClose && (
             <button
               onClick={onClose}
-              className="text-sm text-gray-500 hover:text-gray-700
-                         dark:text-slate-400 dark:hover:text-slate-200"
+              className="text-sm text-purple-200 hover:text-white transition"
             >
               Close
             </button>
@@ -99,7 +107,7 @@ const QuizViewer: React.FC<{ quiz: Q[]; onClose?: () => void }> = ({
 
       {/* Optional warning if many unanswered */}
       {!submitted && unanswered > 0 && (
-        <p className="mb-3 text-xs text-amber-500">
+        <p className="mb-3 text-xs text-amber-300">
           You have {unanswered} unanswered question
           {unanswered > 1 ? "s" : ""}.
         </p>
@@ -114,10 +122,10 @@ const QuizViewer: React.FC<{ quiz: Q[]; onClose?: () => void }> = ({
           return (
             <div
               key={i}
-              className="p-3 border rounded
-                         border-slate-200 dark:border-slate-700"
+              className="p-3 rounded-xl border
+                         border-white/12 bg-white/5"
             >
-              <div className="font-medium mb-2">
+              <div className="font-medium mb-2 text-purple-50">
                 {i + 1}. {q.question}
               </div>
 
@@ -131,26 +139,26 @@ const QuizViewer: React.FC<{ quiz: Q[]; onClose?: () => void }> = ({
 
                     // style based on submission state
                     let optionClasses =
-                      "flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition";
+                      "flex items-center gap-2 px-2 py-1 rounded-lg cursor-pointer transition text-sm";
 
                     if (!submitted) {
                       optionClasses +=
-                        " bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700";
+                        " bg-white/5 hover:bg-white/10 border border-transparent";
                       if (isSelected) {
                         optionClasses +=
-                          " ring-1 ring-blue-500 dark:ring-blue-400";
+                          " border-pink-400/70 bg-pink-500/10";
                       }
                     } else {
                       // after submit: color by correctness
                       if (isCorrect) {
                         optionClasses +=
-                          " bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200";
+                          " bg-emerald-500/20 text-emerald-100 border border-emerald-400/60";
                       } else if (isSelected && !isCorrect) {
                         optionClasses +=
-                          " bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-200";
+                          " bg-red-500/20 text-red-100 border border-red-400/60";
                       } else {
                         optionClasses +=
-                          " bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100";
+                          " bg-white/5 text-purple-50 border border-transparent";
                       }
                     }
 
@@ -160,13 +168,13 @@ const QuizViewer: React.FC<{ quiz: Q[]; onClose?: () => void }> = ({
                         className={optionClasses}
                         onClick={() => handleSelect(i, idx)}
                       >
-                        {/* “Checkbox” / radio indicator */}
+                        {/* Radio indicator */}
                         <input
                           type="radio"
                           name={`q-${i}`}
                           checked={isSelected}
                           onChange={() => handleSelect(i, idx)}
-                          className="accent-blue-600"
+                          className="accent-pink-400"
                           disabled={submitted}
                         />
                         <span className="font-semibold">{letter}.</span>
@@ -181,12 +189,12 @@ const QuizViewer: React.FC<{ quiz: Q[]; onClose?: () => void }> = ({
               {submitted && (
                 <div className="mt-2 space-y-1 text-xs">
                   {correct && (
-                    <div className="text-emerald-600 dark:text-emerald-400">
+                    <div className="text-emerald-300">
                       Correct answer: <strong>{correct}</strong>
                     </div>
                   )}
                   {q.explanation && (
-                    <div className="text-gray-600 dark:text-slate-400">
+                    <div className="text-purple-200/80">
                       Explanation: {q.explanation}
                     </div>
                   )}

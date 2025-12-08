@@ -73,74 +73,159 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <Header
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        // ✅ profile button now works again
-        onProfile={() => navigate("/profile")}
-      />
+    <div
+      className="min-h-screen flex flex-col
+                 bg-gradient-to-br from-[#2a0056] via-[#19002f] to-[#050013]
+                 text-white"
+    >
+      {/* Header in a glass card */}
+      <div className="px-4 md:px-10 pt-4 pb-2">
+        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl 
+                        shadow-[0_18px_45px_rgba(0,0,0,0.6)] px-5 py-3">
+          <Header
+            darkMode={darkMode}
+            toggleDarkMode={toggleDarkMode}
+            onProfile={() => navigate("/profile")}
+          />
+        </div>
+      </div>
 
-      <main className="container mx-auto px-4 py-8 h-[calc(100vh-80px)] flex flex-col relative">
-        {/* button to open docs panel (like ChatGPT history) */}
+      {/* Main content */}
+      <main className="flex-1 px-4 md:px-10 pb-8 flex flex-col gap-6 relative">
+        {/* Top hero / intro row */}
+        <section className="grid md:grid-cols-3 gap-4">
+          <div className="md:col-span-2 space-y-2">
+            <p className="text-xs uppercase tracking-[0.35em] text-pink-300">
+              Your AI workspace
+            </p>
+            <h1 className="text-2xl md:text-3xl font-bold leading-tight">
+              Smart Campus Assistant{" "}
+              <span className="text-pink-400">Home</span>
+            </h1>
+            <p className="text-sm text-purple-100/80 max-w-xl">
+              Upload PDFs, explore your documents, ask questions, generate
+              summaries and quizzes – all in one intelligent panel.
+            </p>
+          </div>
+
+          <div className="flex md:justify-end">
+            <div
+              className="w-full md:w-64 rounded-2xl border border-pink-400/40 
+                         bg-gradient-to-br from-pink-500/30 via-purple-700/40 to-blue-500/30
+                         px-4 py-3 text-sm shadow-[0_15px_40px_rgba(0,0,0,0.7)]"
+            >
+              <p className="text-[11px] uppercase tracking-[0.3em] text-pink-200/90 mb-1">
+                Workspace status
+              </p>
+              <p className="text-sm font-medium">
+                {hasUploadedFiles ? (
+                  <>
+                    <span className="text-emerald-200 font-semibold">
+                      Documents connected
+                    </span>{" "}
+                    – start chatting with your notes.
+                  </>
+                ) : (
+                  <>
+                    <span className="text-amber-200 font-semibold">
+                      No documents yet
+                    </span>{" "}
+                    – upload a PDF to begin.
+                  </>
+                )}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Documents button (like ChatGPT history) */}
         <button
-          className="flex items-center gap-2 px-3 py-2 rounded-full shadow bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-800 dark:text-gray-100 w-max mb-4"
+          className="flex items-center gap-2 px-3 py-2 rounded-full shadow 
+                     bg-white/10 border border-white/20 text-xs font-medium
+                     text-purple-100 w-max"
           onClick={() => setSidebarOpen(true)}
         >
           <PanelLeftOpen className="w-4 h-4" />
           Documents
         </button>
 
-        {/* main content */}
+        {/* Main grid: upload + chat */}
         {!hasUploadedFiles ? (
+          // First-time view: big upload card centered
           <div className="flex-1 flex items-center justify-center">
-            <div className="text-center w-full max-w-xl">
-              {/* ⚠️ FileUpload was originally using onUploaded prop */}
-              <FileUpload onUploaded={handleUploadSuccess} />
-              <p className="text-gray-600 dark:text-gray-400 mt-4">
-                Upload your PDF documents to start asking questions
+            <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-white/5 
+                            backdrop-blur-xl shadow-[0_18px_45px_rgba(0,0,0,0.6)] p-6 text-center">
+              <FileUpload
+                onUploaded={handleUploadSuccess}
+                onUploadSuccess={handleUploadSuccess}
+              />
+              <p className="text-sm text-purple-100/80 mt-4">
+                Upload your PDF documents to start asking questions, generating
+                summaries, and building quizzes.
               </p>
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col">
-            <div className="mb-4">
-              <FileUpload onUploaded={handleUploadSuccess} />
+          // Normal workspace view
+          <section className="flex-1 grid lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)] gap-6">
+            {/* Left: upload + small docs info */}
+            <div className="flex flex-col gap-4">
+              <div
+                className="rounded-2xl border border-white/10 bg-white/5 
+                           backdrop-blur-xl shadow-[0_18px_45px_rgba(0,0,0,0.6)]"
+              >
+                <FileUpload
+                  onUploaded={handleUploadSuccess}
+                  onUploadSuccess={handleUploadSuccess}
+                />
+              </div>
+
+              <div
+                className="rounded-2xl border border-white/10 bg-white/5 
+                           backdrop-blur-xl shadow-[0_18px_45px_rgba(0,0,0,0.6)] p-3 text-xs"
+              >
+                <div className="text-purple-100/90 mb-1 font-semibold">
+                  Active document
+                </div>
+                <div className="text-[13px] text-purple-100/80">
+                  {selectedDoc
+                    ? selectedDoc.title ??
+                      selectedDoc.filename ??
+                      "Untitled document"
+                    : "Open the Documents panel to pick a file, or ask about any uploaded document."}
+                </div>
+              </div>
             </div>
 
-            <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              {selectedDoc
-                ? `Selected document: ${
-                    selectedDoc.title ??
-                    selectedDoc.filename ??
-                    "Untitled document"
-                  }`
-                : "Open the Documents panel to pick a file, or ask about any of your uploads."}
-            </div>
-
-            <div className="flex-1 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            {/* Right: Chat panel */}
+            <div
+              className="rounded-2xl border border-white/10 bg-white/5 
+                         backdrop-blur-xl shadow-[0_18px_45px_rgba(0,0,0,0.6)]
+                         min-h-[380px] flex flex-col"
+            >
               <ChatBox />
             </div>
-          </div>
+          </section>
         )}
 
-        {/* slide-over documents panel (hidden until you click the button) */}
+        {/* Slide-over documents panel */}
         {sidebarOpen && (
           <div className="fixed inset-0 z-40 flex">
-            {/* backdrop */}
+            {/* Backdrop */}
             <div
               className="flex-1 bg-black/40"
               onClick={() => setSidebarOpen(false)}
             />
-            {/* panel */}
-            <div className="w-80 max-w-[80%] h-full bg-white dark:bg-gray-900 shadow-xl flex flex-col">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
-                  Documents
-                </span>
+            {/* Panel */}
+            <div
+              className="w-80 max-w-[80%] h-full bg-[#0b0217] text-white 
+                         shadow-xl flex flex-col border-l border-purple-500/40"
+            >
+              <div className="flex items-center justify-between px-3 py-2 border-b border-purple-500/40 bg-white/5">
+                <span className="text-sm font-semibold">Documents</span>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="p-1 rounded hover:bg-white/10"
                 >
                   <PanelLeftClose className="w-4 h-4" />
                 </button>

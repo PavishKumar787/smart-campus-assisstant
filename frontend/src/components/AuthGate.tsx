@@ -80,7 +80,8 @@ export default function AuthGate() {
   }
 
   if (!user) {
-    return <Login onLogin={checkTokenAndFetch} />;
+    const LoginAny = Login as any;
+    return <LoginAny onLogin={checkTokenAndFetch} />;
   }
 
   return <Dashboard user={user} onLogout={handleLogout} />;

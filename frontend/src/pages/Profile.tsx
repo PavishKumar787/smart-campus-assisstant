@@ -5,13 +5,15 @@ import Header from "../components/Header";
 import api from "../lib/api";
 import { toast } from "react-toastify";
 
-type UserObj = {
-  _id?: string;
-  name?: string;
-  email?: string;
-  created_at?: string;
-  [key: string]: any;
-} | null;
+type UserObj =
+  | {
+      _id?: string;
+      name?: string;
+      email?: string;
+      created_at?: string;
+      [key: string]: any;
+    }
+  | null;
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<UserObj>(null);
@@ -26,6 +28,7 @@ const Profile: React.FC = () => {
 
   const navigate = useNavigate();
 
+  // sync html.dark with state
   useEffect(() => {
     if (darkMode) document.documentElement.classList.add("dark");
     else document.documentElement.classList.remove("dark");
@@ -36,6 +39,8 @@ const Profile: React.FC = () => {
     setDarkMode(next);
     try {
       localStorage.setItem("darkMode", next ? "true" : "false");
+      if (next) document.documentElement.classList.add("dark");
+      else document.documentElement.classList.remove("dark");
     } catch {}
   };
 
@@ -80,60 +85,67 @@ const Profile: React.FC = () => {
     : undefined;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <Header
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        onProfile={() => {
-          /* already here, do nothing */
-        }}
-      />
+    <div
+      className="min-h-screen flex flex-col
+                 bg-gradient-to-br from-[#2a0056] via-[#19002f] to-[#050013]
+                 text-white"
+    >
+      {/* Glass header (same style as Home/Dashboard) */}
+      <div className="px-4 md:px-10 pt-4 pb-2">
+        <Header
+          darkMode={darkMode}
+          toggleDarkMode={toggleDarkMode}
+          onProfile={() => {
+            /* already here */
+          }}
+        />
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="flex-1 px-4 md:px-10 pb-10 flex items-center justify-center">
         {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-slate-600 dark:text-slate-300">
-                Loading profile...
-              </p>
-            </div>
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="w-10 h-10 border-4 border-pink-400/80 border-t-transparent rounded-full animate-spin mb-4" />
+            <p className="text-sm text-purple-100/90">Loading profile...</p>
           </div>
         ) : !user ? (
-          <div className="text-center text-slate-700 dark:text-slate-200">
+          <div className="text-center text-purple-100">
             Unable to load profile.
           </div>
         ) : (
-          <div className="max-w-xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-white mb-4">
+          <div
+            className="w-full max-w-xl rounded-2xl p-6
+                       bg-white/5 border border-white/10
+                       backdrop-blur-xl shadow-[0_18px_45px_rgba(0,0,0,0.7)]"
+          >
+            <h2 className="text-2xl font-semibold text-purple-50 mb-4">
               Profile
             </h2>
 
             <div className="space-y-4 text-sm">
               <div>
-                <div className="text-slate-500 dark:text-slate-400">
+                <div className="text-xs uppercase tracking-[0.25em] text-purple-200/80 mb-1">
                   Name
                 </div>
-                <div className="font-medium text-slate-900 dark:text-slate-50">
+                <div className="font-medium text-purple-50">
                   {user.name ?? "—"}
                 </div>
               </div>
 
               <div>
-                <div className="text-slate-500 dark:text-slate-400">
+                <div className="text-xs uppercase tracking-[0.25em] text-purple-200/80 mb-1">
                   Email
                 </div>
-                <div className="font-medium text-slate-900 dark:text-slate-50 break-all">
+                <div className="font-medium text-purple-50 break-all">
                   {user.email ?? "—"}
                 </div>
               </div>
 
               {createdAt && (
                 <div>
-                  <div className="text-slate-500 dark:text-slate-400">
+                  <div className="text-xs uppercase tracking-[0.25em] text-purple-200/80 mb-1">
                     Joined
                   </div>
-                  <div className="font-medium text-slate-900 dark:text-slate-50">
+                  <div className="font-medium text-purple-50">
                     {createdAt}
                   </div>
                 </div>
@@ -143,13 +155,16 @@ const Profile: React.FC = () => {
             <div className="mt-8 flex items-center justify-between gap-3">
               <button
                 onClick={() => navigate("/home")}
-                className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-slate-700 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="px-4 py-2 rounded-full border border-white/25 text-xs font-medium
+                           text-purple-100 bg-white/5 hover:bg-white/10 transition"
               >
                 ← Back to Home
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600"
+                className="px-4 py-2 rounded-full text-xs font-semibold
+                           bg-red-500 hover:bg-red-400 text-white
+                           shadow-[0_10px_25px_rgba(248,113,113,0.4)] transition"
               >
                 Logout
               </button>
