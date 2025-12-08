@@ -17,9 +17,15 @@ export type DocItem = {
 type Props = {
   onSelect?: (doc: DocItem) => void;
   showRemove?: boolean;
+  /** when this value changes, list will reload */
+  reloadKey?: number;
 };
 
-export default function DocumentList({ onSelect, showRemove = false }: Props) {
+export default function DocumentList({
+  onSelect,
+  showRemove = false,
+  reloadKey,
+}: Props) {
   const [docs, setDocs] = useState<DocItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,20 +47,28 @@ export default function DocumentList({ onSelect, showRemove = false }: Props) {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, [reloadKey]);
 
   const handleSelect = (doc: DocItem) => onSelect?.(doc);
 
   const handleRemove = async (doc: DocItem) => {
     if (!doc?._id && !doc?.file_id) return;
     if (!confirm("Remove this document? This cannot be undone.")) return;
+
     try {
       const id = doc._id ?? doc.file_id;
       if (id) {
-        try { await api.deleteDocument(id); toast.success("Removed from server"); }
-        catch (e) { console.warn("Server delete failed", e); toast.info("Removed locally"); }
+        try {
+          await api.deleteDocument(id);
+          toast.success("Removed from server");
+        } catch (e) {
+          console.warn("Server delete failed", e);
+          toast.info("Removed locally");
+        }
       }
-      setDocs(prev => prev.filter(d => d !== doc));
+      setDocs((prev) => prev.filter((d) => d !== doc));
     } catch (err: any) {
       console.error(err);
       toast.error("Delete failed: " + (err?.message || ""));
@@ -62,42 +76,97 @@ export default function DocumentList({ onSelect, showRemove = false }: Props) {
   };
 
   return (
-    <div className="p-3 bg-white rounded shadow">
+    <div
+      className="p-3 rounded shadow h-full flex flex-col
+                 bg-white text-slate-900
+                 dark:bg-slate-900 dark:text-slate-100"
+    >
+      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold">Documents</h3>
-        <div><button onClick={load} className="text-xs px-2 py-1 bg-gray-100 rounded">Refresh</button></div>
+
+        <button
+          onClick={load}
+          className="text-xs px-2 py-1 rounded transition
+                     bg-gray-100 text-gray-700
+                     dark:bg-slate-700 dark:text-slate-200
+                     hover:bg-gray-200 dark:hover:bg-slate-600"
+        >
+          Refresh
+        </button>
       </div>
 
-      {loading && <div className="text-sm text-gray-500">Loading...</div>}
-      {error && <div className="text-sm text-red-500">Error: {error}</div>}
-      {!loading && docs.length === 0 && <div className="text-sm text-gray-500">No documents uploaded yet.</div>}
+      {/* States */}
+      {loading && (
+        <div className="text-sm text-gray-500 dark:text-slate-400">
+          Loading...
+        </div>
+      )}
 
-      <div className="space-y-2">
+      {error && (
+        <div className="text-sm text-red-500 dark:text-red-400">
+          Error: {error}
+        </div>
+      )}
+
+      {!loading && docs.length === 0 && (
+        <div className="text-sm text-gray-500 dark:text-slate-400">
+          No documents uploaded yet.
+        </div>
+      )}
+
+      {/* Document list */}
+      <div className="space-y-2 overflow-y-auto">
         {docs.map((d, i) => {
           const key = d._id ?? d.file_id ?? `doc_${i}`;
-          const title = d.title ?? (d.filename ? d.filename.split("/").pop() : "Untitled");
-          const pages = typeof d.num_pages === "number" ? `${d.num_pages} pages` : "";
+          const title =
+            d.title ?? (d.filename ? d.filename.split("/").pop() : "Untitled");
+          const pages =
+            typeof d.num_pages === "number" ? `${d.num_pages} pages` : "";
+
           return (
-            <div key={key}
-                 className="flex items-center justify-between p-2 rounded bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                 onClick={() => handleSelect(d)}
-                 role="button" tabIndex={0}
-                 onKeyDown={(e) => { if (e.key === "Enter") handleSelect(d); }}>
+            <div
+              key={key}
+              className="flex items-center justify-between p-2 rounded cursor-pointer transition
+                         bg-gray-50 hover:bg-gray-100
+                         dark:bg-slate-800 dark:hover:bg-slate-700"
+              onClick={() => handleSelect(d)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSelect(d);
+              }}
+            >
               <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-red-500" />
+                <FileText className="h-5 w-5 text-red-500 dark:text-red-400" />
+
                 <div>
                   <div className="text-sm font-medium">{title}</div>
-                  <div className="text-xs text-gray-500">{pages}</div>
+                  <div className="text-xs text-gray-500 dark:text-slate-400">
+                    {pages}
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
                 {showRemove && (
-                  <button onClick={(ev) => { ev.stopPropagation(); handleRemove(d); }} title="Remove" className="p-1 rounded hover:bg-gray-200">
-                    <X className="h-4 w-4 text-gray-600" />
+                  <button
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      handleRemove(d);
+                    }}
+                    title="Remove"
+                    className="p-1 rounded transition
+                               hover:bg-gray-200
+                               dark:hover:bg-slate-600"
+                  >
+                    <X className="h-4 w-4 text-gray-600 dark:text-slate-300" />
                   </button>
                 )}
-                <div className="text-xs text-gray-400">#{i + 1}</div>
+
+                <div className="text-xs text-gray-400 dark:text-slate-500">
+                  #{i + 1}
+                </div>
               </div>
             </div>
           );

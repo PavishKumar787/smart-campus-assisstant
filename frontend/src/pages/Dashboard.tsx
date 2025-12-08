@@ -1,5 +1,6 @@
 // src/pages/Dashboard.tsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import FileUpload from "../components/FileUpload";
 import DocumentList, { type DocItem } from "../components/DocumentList";
@@ -22,6 +23,7 @@ export default function Dashboard({
 
   const [selectedDoc, setSelectedDoc] = useState<DocItem | null>(null);
   const [hasUploaded, setHasUploaded] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const toggleDarkMode = () => {
     const next = !darkMode;
@@ -37,7 +39,11 @@ export default function Dashboard({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} onProfile={() => {}} />
+      <Header
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
+        onProfile={() => navigate("/profile")}
+      />
 
       <main className="container mx-auto px-4 py-8 h-[calc(100vh-80px)] flex gap-6">
         {/* Sidebar */}
@@ -50,16 +56,15 @@ export default function Dashboard({
 
             <div className="mt-3 flex gap-2">
               <button
-                onClick={async () => { await onLogout(); }}
+                onClick={async () => {
+                  await onLogout();
+                }}
                 className="px-3 py-2 bg-red-500 text-white rounded"
               >
                 Logout
               </button>
               <button
-                onClick={() => {
-                  // quick profile placeholder
-                  alert(`User: ${user?.email ?? "unknown"}`);
-                }}
+                onClick={() => navigate("/profile")}
                 className="px-3 py-2 bg-gray-100 rounded"
               >
                 Profile
@@ -72,7 +77,6 @@ export default function Dashboard({
             <FileUpload
               onUploadSuccess={() => {
                 setHasUploaded(true);
-                // optionally we could refresh DocumentList via a prop/event
               }}
             />
           </div>
@@ -91,13 +95,14 @@ export default function Dashboard({
             <div>
               <h2 className="text-lg font-semibold">Assistant</h2>
               <div className="text-xs text-gray-500">
-                {selectedDoc ? `Selected: ${selectedDoc.title ?? selectedDoc.filename}` : "Ask questions about your documents"}
+                {selectedDoc
+                  ? `Selected: ${selectedDoc.title ?? selectedDoc.filename}`
+                  : "Ask questions about your documents"}
               </div>
             </div>
           </div>
 
           <div className="flex-1 overflow-hidden">
-            {/* ChatBox handles its own layout */}
             <ChatBox />
           </div>
         </section>

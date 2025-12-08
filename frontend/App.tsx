@@ -10,6 +10,7 @@ import Home from "./src/pages/Home";
 import NotFound from "./src/pages/NotFound";
 import Login from "./src/pages/Login";
 import Register from "./src/pages/Register";
+import Profile from "./src/pages/Profile";
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,9 @@ const App: React.FC = () => {
 
             {/* Page after login */}
             <Route path="/home" element={<Home />} />
+
+            {/* Profile page */}
+            <Route path="/profile" element={<Profile />} />
 
             {/* 404 */}
             <Route path="*" element={<NotFound />} />

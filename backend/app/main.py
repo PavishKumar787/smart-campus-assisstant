@@ -1,5 +1,5 @@
 # backend/app/main.py
-from fastapi import FastAPI, File, UploadFile, HTTPException, Request
+from fastapi import FastAPI, File, UploadFile, HTTPException, Request, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pathlib import Path
@@ -61,6 +61,40 @@ async def add_cors_headers(request: Request, call_next):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "*"
     return response
+
+@app.get("/documents")
+async def list_documents():
+    """
+    Return list of uploaded documents for the UI sidebar/history.
+    """
+    try:
+        cursor = documents.find(
+            {},
+            {
+                "_id": 1,
+                "title": 1,
+                "filename": 1,
+                "num_pages": 1,
+                "num_chunks": 1,
+            },
+        )
+        docs_list = []
+        for d in cursor:
+            docs_list.append(
+                {
+                    "_id": str(d.get("_id")),
+                    "title": d.get("title"),
+                    "filename": d.get("filename"),
+                    "num_pages": d.get("num_pages"),
+                    "num_chunks": d.get("num_chunks"),
+                }
+            )
+        return {"documents": docs_list}
+    except Exception as e:
+        import traceback
+
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to list documents: {e}")
 
 # ----------------------------
 # Request models
@@ -198,6 +232,66 @@ async def upload_pdf(file: UploadFile = File(...), title: str | None = None):
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to process upload: {e}")
+# ----------------------------
+# List documents
+# ----------------------------
+@app.get("/documents")
+async def list_documents():
+    """
+    Return a simple list of uploaded documents so the frontend
+    can show them in the left sidebar.
+    """
+    cursor = documents.find(
+        {},
+        {
+            "_id": 1,
+            "title": 1,
+            "filename": 1,
+            "num_pages": 1,
+            "num_chunks": 1,
+        },
+    )
+
+    docs_list = []
+    for d in cursor:
+        # ensure _id is string
+        d["_id"] = str(d.get("_id"))
+        docs_list.append(d)
+
+    return {"documents": docs_list}
+
+
+# ----------------------------
+# Delete a document completely
+# ----------------------------
+@app.delete("/documents/{doc_id}")
+async def delete_document(doc_id: str):
+    """
+    Delete document metadata, chunks, and the PDF file.
+    (Vector index cleanup is optional / can be rebuilt on restart.)
+    """
+    doc = documents.find_one({"_id": doc_id})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    # Remove file from disk if it exists
+    filename = doc.get("filename")
+    if filename and os.path.exists(filename):
+        try:
+            os.remove(filename)
+        except Exception as e:
+            # Don't hard-fail on file delete; just log
+            print(f"Failed to delete file {filename}: {e}")
+
+    # Delete DB records
+    chunks.delete_many({"doc_id": doc_id})
+    documents.delete_one({"_id": doc_id})
+
+    # NOTE: We are NOT removing vectors from VSTORE here.
+    # You can rebuild VSTORE from Mongo on restart (your startup hook already does that).
+
+    return {"status": "ok", "deleted_doc_id": doc_id}
+
 
 # ----------------------------
 # Simple retrieval endpoint (keeps existing behavior)
