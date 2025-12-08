@@ -1,0 +1,22 @@
+# Python venv
+.venv/
+venv/
+
+# Bytecode
+__pycache__/
+*.pyc
+
+node_modules/
+
+# Large archives
+*.zip
+*.tar
+*.rar
+*.7z
+
+.env
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
