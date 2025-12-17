@@ -40,6 +40,7 @@ const NotFound: React.FC = () => {
               fill="url(#paint5_linear_11881_2293)"
             />
             <defs>
+              
               <linearGradient
                 id="paint0_linear_11881_2293"
                 x1="471.959"
